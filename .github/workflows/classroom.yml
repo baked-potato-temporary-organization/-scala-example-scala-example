@@ -1,13 +1,36 @@
-name: GitHub Classroom Workflow
-on: [push]
-
+name: Autograding Tests
+'on':
+- push
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
 jobs:
-  build:
+  run-autograding-tests:
     runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
     steps:
-      - uses: actions/checkout@v4
-      - uses: coursier/cache-action@v6.4.6
-      - uses: coursier/setup-action@v1.3.6
-        with:
-          apps: scala
-      - run: scala calculator.scala
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: aaa
+      id: aaa
+      uses: classroom-resources/autograding-python-grader@v1
+      with:
+        timeout: 10
+        setup-command: ''
+    - name: aaaa
+      id: aaaa
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: aaaa
+        setup-command: ''
+        command: scala scala.scala
+        timeout: 10
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        AAA_RESULTS: "${{steps.aaa.outputs.result}}"
+        AAAA_RESULTS: "${{steps.aaaa.outputs.result}}"
+      with:
+        runners: aaa,aaaa
